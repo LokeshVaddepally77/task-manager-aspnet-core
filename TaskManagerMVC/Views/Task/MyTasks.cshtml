@@ -1,0 +1,196 @@
+﻿@using TaskManagerMVC.DataAccess.Models
+@model List<TaskItem>
+
+@{
+    ViewData["Title"] = "My Tasks";
+}
+
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="fw-bold">
+                <i class="bi bi-list-check"></i> My Tasks
+            </h2>
+            <p class="text-muted">Manage all your assigned tasks</p>
+        </div>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <!-- Filter Form using Form Tag Helper -->
+                    <!-- Demonstrates Lesson 8: FromQuery Model Binding -->
+                    <form asp-controller="Task" asp-action="MyTasks" method="get" class="row g-3">
+                        <!-- Status Filter -->
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Filter by Status</label>
+                            <!-- This form field is bound via [FromQuery] string status parameter -->
+                            <select name="status" class="form-select">
+                                <option value="">All Status</option>
+                                <option value="New">New</option>
+                                <option value="In Progress">In Progress</option>
+                                <option value="Completed">Completed</option>
+                                <option value="On Hold">On Hold</option>
+                            </select>
+                        </div>
+
+                        <!-- Priority Filter -->
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Filter by Priority</label>
+                            <!-- This form field is bound via [FromQuery] string priority parameter -->
+                            <select name="priority" class="form-select">
+                                <option value="">All Priorities</option>
+                                <option value="High">High</option>
+                                <option value="Medium">Medium</option>
+                                <option value="Low">Low</option>
+                            </select>
+                        </div>
+
+                        <!-- Filter Button -->
+                        <div class="col-md-4">
+                            <label class="form-label">&nbsp;</label>
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="bi bi-funnel"></i> Filter
+                            </button>
+                        </div>
+                    </form>
+                    <!-- Generated URL: /Task/MyTasks?status=New&priority=High -->
+                    <!-- Parameters explicitly bound via [FromQuery] attributes -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tasks Display -->
+    @if (Model.Count == 0)
+    {
+        <div class="alert alert-info text-center py-5">
+            <i class="bi bi-inbox"></i>
+            <h5>No tasks found</h5>
+            <p>You don't have any tasks matching the current filters.</p>
+            <!-- Using Anchor Tag Helper -->
+            <a asp-controller="Task" asp-action="Create" class="btn btn-primary mt-2">
+                <i class="bi bi-plus-circle"></i> Create First Task
+            </a>
+        </div>
+    }
+    else
+    {
+        <!-- ENHANCED: Wrap task grid in cache tag helper -->
+        <!-- Reduces server processing for filtered results -->
+        <!-- Cache expires after 5 minutes -->
+        <!-- Demonstrates Lesson 8: Cache Tag Helper for performance optimization -->
+        <cache expires-sliding="TimeSpan.FromSeconds(300)">
+            <div class="row">
+                @foreach (var task in Model)
+                {
+                    <div class="col-lg-6 mb-3">
+                        <div class="card border-0 shadow-sm h-100 task-card">
+                            <div class="card-body">
+                                <!-- Task Header -->
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h6 class="card-title fw-bold mb-0">@task.Title</h6>
+                                    <!-- ENHANCED: Using custom Priority Badge Tag Helper -->
+                                    <priority-badge priority="@task.Priority"></priority-badge>
+                                </div>
+
+                                <!-- Task Description -->
+                                <p class="text-muted small mb-3">
+                                    @if (task.Description.Length > 100)
+                                    {
+                                        @task.Description.Substring(0, 100)
+                                        <span>...</span>
+                                    }
+                                    else
+                                    {
+                                        @task.Description
+                                    }
+                                </p>
+
+                                <!-- Task Info -->
+                                <div class="row mb-3">
+                                    <div class="col-6">
+                                        <small class="text-muted">
+                                            <strong>Status:</strong>
+                                            <!-- ENHANCED: Using custom Status Badge Tag Helper -->
+                                            <status-badge status="@task.Status"></status-badge>
+                                        </small>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted">
+                                            <strong>Category:</strong> @task.CategoryName
+                                        </small>
+                                    </div>
+                                </div>
+
+                                <!-- Due Date and Completion -->
+                                <div class="row mb-3">
+                                    <div class="col-6">
+                                        <small class="text-muted">
+                                            <strong>Due:</strong> @task.DueDate.ToString("MMM dd, yyyy")
+                                        </small>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted">
+                                            <strong>Progress:</strong> @task.CompletionPercentage%
+                                        </small>
+                                    </div>
+                                </div>
+
+                                <!-- Progress Bar -->
+                                <!-- ENHANCED: Using custom Progress Bar Tag Helper -->
+                                <progress-bar percentage="@task.CompletionPercentage"
+                                              height="6px"
+                                              show-label="false"
+                                              css-class="mb-3">
+                                </progress-bar>
+
+                                <!-- Task Actions -->
+                                <div class="d-flex gap-2">
+                                    <!-- View Task Link using Anchor Tag Helper -->
+                                    <a asp-controller="Task" asp-action="Details" asp-route-id="@task.TaskId"
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i> View
+                                    </a>
+
+                                    <!-- Edit Task Link using Anchor Tag Helper -->
+                                    <a asp-controller="Task" asp-action="Edit" asp-route-id="@task.TaskId"
+                                       class="btn btn-sm btn-outline-secondary">
+                                        <i class="bi bi-pencil"></i> Edit
+                                    </a>
+
+                                    <!-- Comments Badge -->
+                                    @if (task.CommentCount > 0)
+                                    {
+                                        <span class="badge bg-info align-self-center">
+                                            <i class="bi bi-chat"></i> @task.CommentCount
+                                        </span>
+                                    }
+
+                                    <!-- Attachments Badge -->
+                                    @if (task.HasAttachments)
+                                    {
+                                        <span class="badge bg-warning align-self-center">
+                                            <i class="bi bi-paperclip"></i> Attachment
+                                        </span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </cache>
+    }
+
+    <!-- Create Task Button -->
+    <div class="mt-4 text-center">
+        <!-- Using Anchor Tag Helper -->
+        <a asp-controller="Task" asp-action="Create" class="btn btn-primary btn-lg">
+            <i class="bi bi-plus-circle"></i> Create New Task
+        </a>
+    </div>
+</div>

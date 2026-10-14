@@ -1,0 +1,131 @@
+﻿@model TaskManagerMVC.DataAccess.ViewModels.TeamViewModel
+
+@{
+    ViewData["Title"] = "Team";
+}
+
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="fw-bold">
+                <i class="bi bi-people"></i> Team
+            </h2>
+            <p class="text-muted">Team overview and performance metrics</p>
+        </div>
+    </div>
+
+    <!-- Team Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-2">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                <div class="card-body">
+                    <h6><i class="bi bi-people-fill"></i> Team Members</h6>
+                    <h3 class="fw-bold">@Model.TeamMembers.Count</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-2">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
+                <div class="card-body">
+                    <h6><i class="bi bi-list-task"></i> Total Tasks</h6>
+                    <h3 class="fw-bold">@Model.TotalTeamTasks</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-2">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
+                <div class="card-body">
+                    <h6><i class="bi bi-check-circle"></i> Completed</h6>
+                    <h3 class="fw-bold">@Model.TotalCompletedTasks</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-2">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white;">
+                <div class="card-body">
+                    <h6><i class="bi bi-graph-up"></i> Completion Rate</h6>
+                    <h3 class="fw-bold">@Model.TeamCompletionRate.ToString("F1")%</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Team Members Table -->
+    <div class="card border-0 shadow">
+        <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold">
+                <i class="bi bi-people-fill"></i> Team Members
+            </h5>
+            <a asp-controller="Account" asp-action="CreateUser" class="btn btn-primary btn-sm">
+                <i class="bi bi-person-plus"></i> Add Member
+            </a>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Total Tasks</th>
+                        <th>Completed</th>
+                        <th>In Progress</th>
+                        <th>Completion Rate</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var member in Model.TeamMembers)
+                    {
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="rounded-circle d-flex justify-content-center align-items-center me-2"
+                                         style="width: 35px; height: 35px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; font-size: 14px;">
+                                        @member.Username[0].ToString().ToUpper()
+                                    </div>
+                                    <div>
+                                        <strong>@member.FullName</strong>
+                                        <br><small class="text-muted">@@@member.Username</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>@member.Email</td>
+                            <td>
+                                <span class="badge @(member.Role == "Manager" ? "bg-warning text-dark" : "bg-secondary")">
+                                    @member.Role
+                                </span>
+                            </td>
+                            <td>@Model.GetUserTaskCount(member.UserId)</td>
+                            <td>
+                                <span class="badge bg-success">@Model.GetUserCompletedTasks(member.UserId)</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-info">@Model.GetUserInProgressTasks(member.UserId)</span>
+                            </td>
+                            <td style="min-width: 150px;">
+                                <div class="progress" style="height: 20px;">
+                                    @{
+                                        var rate = Model.GetUserCompletionRate(member.UserId);
+                                        var barClass = rate >= 80 ? "bg-success" : rate >= 50 ? "bg-info" : rate >= 25 ? "bg-warning" : "bg-danger";
+                                    }
+                                    <div class="progress-bar @barClass" role="progressbar"
+                                         style="width: @rate%" aria-valuenow="@rate" aria-valuemin="0" aria-valuemax="100">
+                                        @rate.ToString("F0")%
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <a asp-controller="Team" asp-action="MemberDetails" asp-route-userId="@member.UserId"
+                                   class="btn btn-sm btn-outline-primary" title="View Details">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

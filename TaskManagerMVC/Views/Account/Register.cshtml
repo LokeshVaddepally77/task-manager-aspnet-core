@@ -1,0 +1,174 @@
+﻿@model TaskManagerMVC.DataAccess.ViewModels.RegisterViewModel
+
+@{
+    ViewData["Title"] = "Register";
+    Layout = "_Layout";
+}
+
+<div class="container">
+    <div class="row justify-content-center mt-4">
+        <div class="col-md-6">
+            <div class="card border-0 shadow-lg">
+                <!-- Card Header with Gradient -->
+                <div class="card-header text-white text-center py-4"
+                     style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+                    <h3 class="mb-0">
+                        <i class="bi bi-person-plus"></i> Create Account
+                    </h3>
+                    <p class="mb-0 mt-2 opacity-75">Join Task Manager today</p>
+                </div>
+
+                <div class="card-body p-4">
+                    <!-- Registration Form -->
+                    <form asp-action="Register" asp-controller="Account" method="post">
+                        <!-- Validation Summary -->
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                        <!-- Name Row -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="FirstName" class="form-label fw-bold">
+                                    <i class="bi bi-person"></i> First Name
+                                </label>
+                                <input asp-for="FirstName" class="form-control" placeholder="John" />
+                                <span asp-validation-for="FirstName" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="LastName" class="form-label fw-bold">
+                                    <i class="bi bi-person"></i> Last Name
+                                </label>
+                                <input asp-for="LastName" class="form-control" placeholder="Doe" />
+                                <span asp-validation-for="LastName" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <!-- Username Field -->
+                        <div class="mb-3">
+                            <label asp-for="Username" class="form-label fw-bold">
+                                <i class="bi bi-at"></i> Username <span class="text-danger">*</span>
+                            </label>
+                            <input asp-for="Username" class="form-control" placeholder="johndoe" />
+                            <span asp-validation-for="Username" class="text-danger small"></span>
+                            <small class="text-muted">Letters, numbers, and underscores only</small>
+                        </div>
+
+                        <!-- Email Field -->
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label fw-bold">
+                                <i class="bi bi-envelope"></i> Email Address <span class="text-danger">*</span>
+                            </label>
+                            <input asp-for="Email" class="form-control" type="email"
+                                   placeholder="john@example.com" />
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+                        <!-- Row 4: Gender (Required) -->
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">
+                                <i class="bi bi-gender-ambiguous me-1"></i>Gender <span class="text-danger">*</span>
+                            </label>
+                            <select asp-for="Gender" class="form-select form-select-lg">
+                                <option value="">-- Select Gender --</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                                <option value="Prefer not to say">Prefer not to say</option>
+                            </select>
+                            <span asp-validation-for="Gender" class="text-danger small"></span>
+                        </div>
+                        <!-- Row 5: City & Postal Code (Required) -->
+                        <div class="row mb-3">
+                            <div class="col-md-7">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-building me-1"></i>City <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="City" class="form-control form-control-lg" placeholder="Vancouver" />
+                                <span asp-validation-for="City" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-mailbox me-1"></i>Postal Code <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="PostalCode" class="form-control form-control-lg" placeholder="V6B 1A1" />
+                                <span asp-validation-for="PostalCode" class="text-danger small"></span>
+                            </div>
+                        </div>
+                        <!-- Password Field -->
+                        <div class="mb-3">
+                            <label asp-for="Password" class="form-label fw-bold">
+                                <i class="bi bi-lock"></i> Password <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <input asp-for="Password" class="form-control"
+                                       placeholder="Minimum 6 characters" id="passwordInput" />
+                                <button class="btn btn-outline-secondary" type="button"
+                                        onclick="togglePassword('passwordInput', 'toggleIcon1')">
+                                    <i class="bi bi-eye" id="toggleIcon1"></i>
+                                </button>
+                            </div>
+                            <span asp-validation-for="Password" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Confirm Password Field -->
+                        <div class="mb-4">
+                            <label asp-for="ConfirmPassword" class="form-label fw-bold">
+                                <i class="bi bi-lock-fill"></i> Confirm Password <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <input asp-for="ConfirmPassword" class="form-control"
+                                       placeholder="Re-enter password" id="confirmPasswordInput" />
+                                <button class="btn btn-outline-secondary" type="button"
+                                        onclick="togglePassword('confirmPasswordInput', 'toggleIcon2')">
+                                    <i class="bi bi-eye" id="toggleIcon2"></i>
+                                </button>
+                            </div>
+                            <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Hidden Role Field (Always Employee for public registration) -->
+                        <input type="hidden" asp-for="Role" value="Employee" />
+
+                        <!-- Submit Button -->
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="bi bi-person-plus"></i> Create Account
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Divider -->
+                    <hr class="my-4">
+
+                    <!-- Login Link -->
+                    <div class="text-center">
+                        <p class="mb-0">
+                            Already have an account?
+                            <a asp-action="Login" asp-controller="Account" class="text-primary fw-bold">
+                                Sign In
+                            </a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function togglePassword(inputId, iconId) {
+            const passwordInput = document.getElementById(inputId);
+            const toggleIcon = document.getElementById(iconId);
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('bi-eye');
+                toggleIcon.classList.add('bi-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('bi-eye-slash');
+                toggleIcon.classList.add('bi-eye');
+            }
+        }
+    </script>
+}

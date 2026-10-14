@@ -1,0 +1,301 @@
+﻿@model TaskManagerMVC.DataAccess.ViewModels.DashboardViewModel
+
+@{
+    ViewData["Title"] = "Dashboard";
+    var isManager = ViewData["IsManager"] as bool? ?? false;
+}
+
+<div class="container-fluid">
+    <!-- Welcome Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="fw-bold">
+                <i class="bi bi-hand-thumbs-up"></i>
+                @Model.WelcomeMessage, @Model.CurrentUser?.FirstName!
+            </h2>
+            <p class="text-muted">
+                Here's your task overview for @DateTime.Now.ToString("dddd, MMMM dd, yyyy")
+                @if (isManager)
+                {
+                    <span class="badge bg-warning text-dark ms-2">
+                        <i class="bi bi-star-fill"></i> Manager View
+                    </span>
+                }
+            </p>
+        </div>
+    </div>
+
+    <!-- Statistics Cards Row -->
+    <div class="row mb-4">
+        <!-- Tasks Completed Card -->
+        <div class="col-md-3 mb-3">
+            <div class="card h-100 border-0 shadow-sm"
+                 style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                <div class="card-body">
+                    <h6 class="card-title opacity-75">
+                        <i class="bi bi-check-circle"></i> Completed
+                    </h6>
+                    <!-- FIXED: Now counts all completed tasks -->
+                    <h3 class="fw-bold">@Model.CompletedTasks</h3>
+                    <small class="opacity-75">Tasks completed</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- In Progress Card -->
+        <div class="col-md-3 mb-3">
+            <div class="card h-100 border-0 shadow-sm"
+                 style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
+                <div class="card-body">
+                    <h6 class="card-title opacity-75">
+                        <i class="bi bi-arrow-repeat"></i> In Progress
+                    </h6>
+                    <h3 class="fw-bold">@Model.TasksInProgress</h3>
+                    <small class="opacity-75">Tasks being worked on</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Not Started Card -->
+        <div class="col-md-3 mb-3">
+            <div class="card h-100 border-0 shadow-sm"
+                 style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
+                <div class="card-body">
+                    <h6 class="card-title opacity-75">
+                        <i class="bi bi-hourglass"></i> Not Started
+                    </h6>
+                    <h3 class="fw-bold">@Model.TasksNotStarted</h3>
+                    <small class="opacity-75">Tasks to begin</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Overdue Card -->
+        <div class="col-md-3 mb-3">
+            <div class="card h-100 border-0 shadow-sm"
+                 style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white;">
+                <div class="card-body">
+                    <h6 class="card-title opacity-75">
+                        <i class="bi bi-exclamation-triangle"></i> Overdue
+                    </h6>
+                    <h3 class="fw-bold">@Model.OverdueTasks.Count</h3>
+                    <small class="opacity-75">Tasks past due</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Row -->
+    <div class="row">
+        <!-- My Tasks Section -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold">
+                        @(ViewData["IsManager"] as bool? == true ? "All Tasks" : "My Tasks")
+                    </h5>
+                    @if (ViewData["IsManager"] as bool? == true)
+                    {
+                        <a asp-controller="Task" asp-action="Index" class="btn btn-sm btn-outline-primary">
+                            View All
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-controller="Task" asp-action="MyTasks" class="btn btn-sm btn-outline-primary">
+                            View All
+                        </a>
+                    }
+                </div>
+                <div class="card-body">
+                    @if (Model.MyTasks.Count == 0)
+                    {
+                        <div class="text-center py-4">
+                            <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+                            <p class="text-muted mt-2">No tasks assigned yet</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Status</th>
+                                        <th>Priority</th>
+                                        <th>Due Date</th>
+                                        <th>Progress</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var task in Model.MyTasks.Where(t => t.Status != "Completed").Take(5))
+                                    {
+                                        <tr>
+                                            <td class="fw-bold">@task.Title</td>
+                                            <td>
+                                                <status-badge status="@task.Status"></status-badge>
+                                            </td>
+                                            <td>
+                                                <priority-badge priority="@task.Priority"></priority-badge>
+                                            </td>
+                                            <td>
+                                                @if (task.DueDate < DateTime.Now)
+                                                {
+                                                    <span class="text-danger fw-bold">
+                                                        <i class="bi bi-exclamation-circle"></i>
+                                                        @task.DueDate.ToString("MMM dd")
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <small>@task.DueDate.ToString("MMM dd")</small>
+                                                }
+                                            </td>
+                                            <td style="min-width: 100px;">
+                                                <progress-bar percentage="@task.CompletionPercentage"
+                                                              height="8px" show-label="false"></progress-bar>
+                                                <small class="text-muted">@task.CompletionPercentage%</small>
+                                            </td>
+                                            <td>
+                                                <a asp-controller="Task" asp-action="Details" asp-route-id="@task.TaskId"
+                                                   class="btn btn-sm btn-outline-primary">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                                <a asp-controller="Task" asp-action="Edit" asp-route-id="@task.TaskId"
+                                                   class="btn btn-sm btn-outline-secondary">
+                                                    <i class="bi bi-pencil"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Overdue Tasks Alert (if any) -->
+            @if (Model.OverdueTasks.Any())
+            {
+                <div class="card border-0 shadow-sm mt-4 border-danger">
+                    <div class="card-header bg-danger text-white">
+                        <h6 class="mb-0">
+                            <i class="bi bi-exclamation-triangle"></i> Overdue Tasks
+                        </h6>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        @foreach (var task in Model.OverdueTasks.Take(3))
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>
+                                    <strong>@task.Title</strong>
+                                    <br>
+                                    <small class="text-muted">Due: @task.DueDate.ToString("MMM dd, yyyy")</small>
+                                </span>
+                                <a asp-controller="Task" asp-action="Edit" asp-route-id="@task.TaskId"
+                                   class="btn btn-sm btn-danger">
+                                    Update
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            }
+        </div>
+
+        <!-- Right Sidebar -->
+        <div class="col-lg-4">
+            <!-- Quick Actions Card -->
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="card-header bg-white border-bottom">
+                    <h6 class="mb-0 fw-bold">
+                        <i class="bi bi-lightning-charge"></i> Quick Actions
+                    </h6>
+                </div>
+                <div class="card-body">
+                    @if (isManager)
+                    {
+                        <a asp-controller="Task" asp-action="Create" class="btn btn-primary w-100 mb-2">
+                            <i class="bi bi-plus-circle"></i> Create New Task
+                        </a>
+                        <a asp-controller="Task" asp-action="Index" class="btn btn-outline-primary w-100 mb-2">
+                            <i class="bi bi-kanban"></i> All Tasks
+                        </a>
+                        <a asp-controller="Team" asp-action="Index" class="btn btn-outline-primary w-100 mb-2">
+                            <i class="bi bi-people"></i> Manage Team
+                        </a>
+                        <a asp-controller="Account" asp-action="CreateUser" class="btn btn-outline-secondary w-100">
+                            <i class="bi bi-person-plus"></i> Add Team Member
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-controller="Task" asp-action="MyTasks" class="btn btn-primary w-100 mb-2">
+                            <i class="bi bi-list-check"></i> View All My Tasks
+                        </a>
+                        <a asp-controller="Account" asp-action="Profile" class="btn btn-outline-primary w-100">
+                            <i class="bi bi-person"></i> My Profile
+                        </a>
+                    }
+                </div>
+            </div>
+
+            <!-- High Priority Tasks Card -->
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="card-header bg-white border-bottom">
+                    <h6 class="mb-0 fw-bold text-danger">
+                        <i class="bi bi-exclamation-circle"></i> High Priority
+                    </h6>
+                </div>
+                <div class="card-body">
+                    @if (Model.HighPriorityTasks.Count == 0)
+                    {
+                        <p class="text-muted text-center mb-0">
+                            <i class="bi bi-check-circle text-success"></i> No high priority tasks!
+                        </p>
+                    }
+                    else
+                    {
+                        <ul class="list-group list-group-flush">
+                            @foreach (var task in Model.HighPriorityTasks.Take(4))
+                            {
+                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                    <span class="text-truncate" style="max-width: 180px;">@task.Title</span>
+                                    <a asp-controller="Task" asp-action="Details" asp-route-id="@task.TaskId"
+                                       class="btn btn-sm btn-outline-danger">
+                                        <i class="bi bi-arrow-right"></i>
+                                    </a>
+                                </li>
+                            }
+                        </ul>
+                    }
+                </div>
+            </div>
+
+            <!-- Team Overview (Manager Only) -->
+            @if (isManager && Model.TeamMembersCount > 0)
+            {
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-bottom">
+                        <h6 class="mb-0 fw-bold">
+                            <i class="bi bi-people"></i> Team Overview
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Team Members</span>
+                            <strong>@Model.TeamMembersCount</strong>
+                        </div>
+                        <hr>
+                        <a asp-controller="Team" asp-action="Index" class="btn btn-outline-primary btn-sm w-100">
+                            View Team Details
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

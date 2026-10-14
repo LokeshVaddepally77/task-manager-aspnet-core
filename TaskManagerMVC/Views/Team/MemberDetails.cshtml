@@ -1,0 +1,141 @@
+﻿@model TaskManagerMVC.DataAccess.ViewModels.TeamViewModel
+
+@{
+    ViewData["Title"] = "Member Details";
+    var user = Model.TeamMembers.FirstOrDefault();
+}
+
+<div class="container-fluid">
+    <!-- Back Button -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <a asp-controller="Team" asp-action="Index" class="btn btn-outline-secondary btn-sm mb-3">
+                <i class="bi bi-arrow-left"></i> Back to Team
+            </a>
+            <h2 class="mb-1">
+                <i class="bi bi-person-circle"></i> Member Details
+            </h2>
+        </div>
+    </div>
+
+    @if (user != null)
+    {
+        <div class="row">
+            <!-- Left Column - Member Info -->
+            <div class="col-lg-12">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="rounded-circle d-flex justify-content-center align-items-center me-3"
+                                 style="width: 80px; height: 80px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; font-size: 2rem;">
+                                @user.Username[0].ToString().ToUpper()
+                            </div>
+                            <div>
+                                <h3 class="mb-1">@user.FullName</h3>
+                                <span class="badge @(user.Role == "Manager" ? "bg-warning text-dark" : "bg-secondary")">
+                                    @user.Role
+                                </span>
+                                @if (user.IsActive)
+                                {
+                                    <span class="badge bg-success ms-1">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger ms-1">Inactive</span>
+                                }
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- Contact Information -->
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-muted">Username</label>
+                                <p class="mb-0">@@@user.Username</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-muted">Email</label>
+                                <p class="mb-0">@user.Email</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-muted">First Name</label>
+                                <p class="mb-0">@(user.FirstName ?? "Not set")</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-muted">Last Name</label>
+                                <p class="mb-0">@(user.LastName ?? "Not set")</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-muted">Account Created</label>
+                                <p class="mb-0">@user.CreatedDate.ToString("MMMM dd, yyyy")</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-muted">Last Login</label>
+                                <p class="mb-0">@(user.LastLoginDate?.ToString("MMMM dd, yyyy HH:mm") ?? "Never")</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Task Statistics -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">
+                            <i class="bi bi-bar-chart"></i> Task Statistics
+                        </h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row text-center">
+                            <div class="col-md-3 mb-3">
+                                <div class="p-3 rounded" style="background-color: #e3f2fd;">
+                                    <h3 class="text-primary mb-1">@Model.GetUserTaskCount(user.UserId)</h3>
+                                    <small class="text-muted">Total Tasks</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <div class="p-3 rounded" style="background-color: #e8f5e9;">
+                                    <h3 class="text-success mb-1">@Model.GetUserCompletedTasks(user.UserId)</h3>
+                                    <small class="text-muted">Completed</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <div class="p-3 rounded" style="background-color: #e0f7fa;">
+                                    <h3 class="text-info mb-1">@Model.GetUserInProgressTasks(user.UserId)</h3>
+                                    <small class="text-muted">In Progress</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <div class="p-3 rounded" style="background-color: #ffebee;">
+                                    <h3 class="text-danger mb-1">@Model.GetUserOverdueTasks(user.UserId)</h3>
+                                    <small class="text-muted">Overdue</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Progress Bar -->
+                        <hr class="my-4">
+                        <h6 class="mb-2">Completion Rate</h6>
+                        @{
+                            var completionRate = Model.GetUserCompletionRate(user.UserId);
+                            var progressClass = completionRate >= 80 ? "bg-success" : completionRate >= 50 ? "bg-info" : completionRate >= 25 ? "bg-warning" : "bg-danger";
+                        }
+                        <div class="progress" style="height: 25px;">
+                            <div class="progress-bar @progressClass" role="progressbar"
+                                 style="width: @completionRate%"
+                                 aria-valuenow="@completionRate" aria-valuemin="0" aria-valuemax="100">
+                                @completionRate.ToString("F1")%
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-warning" role="alert">
+            <i class="bi bi-exclamation-triangle"></i> Member not found.
+        </div>
+    }
+</div>

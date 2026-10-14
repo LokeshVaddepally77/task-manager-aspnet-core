@@ -1,0 +1,322 @@
+﻿/* Task Manager Custom Styles */
+
+:root {
+    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --warning-color: #ffc107;
+    --info-color: #17a2b8;
+}
+
+/* General Styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+    color: #333;
+}
+
+/* Navbar Styling */
+.navbar {
+    background: var(--primary-gradient);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.3rem;
+    color: white !important;
+}
+
+.navbar-nav .nav-link {
+    color: rgba(255, 255, 255, 0.9) !important;
+    margin-right: 1rem;
+    transition: all 0.3s ease;
+}
+
+    .navbar-nav .nav-link:hover {
+        color: white !important;
+        text-decoration: underline;
+    }
+
+/* Card Styles */
+.card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    transition: all 0.3s ease;
+}
+
+    .card:hover {
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+        transform: translateY(-2px);
+    }
+
+.card-header {
+    background-color: white;
+    border-bottom: 1px solid #dee2e6;
+    border-radius: 10px 10px 0 0;
+}
+
+/* Task Card Specific */
+.task-card {
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+    .task-card::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 4px;
+        background: var(--primary-gradient);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .task-card:hover::before {
+        opacity: 1;
+    }
+
+/* Form Styles */
+.form-control,
+.form-select {
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 0.6rem 0.75rem;
+    transition: all 0.3s ease;
+}
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: var(--primary-gradient);
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+
+/* Button Styles */
+.btn-primary {
+    background: var(--primary-gradient);
+    border: none;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #5568d3 0%, #6a3a91 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+.btn-outline-primary {
+    color: #667eea;
+    border-color: #667eea;
+}
+
+    .btn-outline-primary:hover {
+        background-color: #667eea;
+        border-color: #667eea;
+    }
+
+/* Badge Styles */
+.badge {
+    border-radius: 20px;
+    padding: 0.4rem 0.8rem;
+    font-weight: 500;
+}
+
+/* Table Styles */
+.table {
+    margin-bottom: 0;
+}
+
+    .table thead th {
+        font-weight: 600;
+        color: #495057;
+        border-bottom: 2px solid #dee2e6;
+        padding: 1rem;
+    }
+
+    .table tbody tr {
+        border-bottom: 1px solid #dee2e6;
+        transition: background-color 0.3s ease;
+    }
+
+        .table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+    .table tbody td {
+        padding: 1rem;
+        vertical-align: middle;
+    }
+
+/* Progress Bar */
+.progress {
+    border-radius: 10px;
+    background-color: #e9ecef;
+}
+
+.progress-bar {
+    background: var(--primary-gradient);
+    border-radius: 10px;
+    transition: width 0.3s ease;
+}
+
+/* Alert Styles */
+.alert {
+    border: none;
+    border-radius: 10px;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.alert-info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+}
+
+.alert-warning {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+/* Validation Messages */
+.text-danger {
+    color: #dc3545 !important;
+}
+
+.invalid-feedback {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 0.875rem;
+    color: #dc3545;
+}
+
+/* Gradient Text */
+.gradient-text {
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Page Header */
+h2 {
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.text-muted {
+    color: #6c757d !important;
+}
+
+/* Footer */
+footer {
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+    margin-top: 3rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .navbar-nav .nav-link {
+        margin-right: 0;
+        padding: 0.5rem 0;
+    }
+
+    .table {
+        font-size: 0.875rem;
+    }
+
+    .btn {
+        font-size: 0.875rem;
+        padding: 0.4rem 0.8rem;
+    }
+
+    .card-body {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .navbar-brand {
+        font-size: 1rem;
+    }
+
+    h2 {
+        font-size: 1.5rem;
+    }
+
+    .table-responsive {
+        font-size: 0.75rem;
+    }
+}
+
+/* Utility Classes */
+.shadow-sm {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06) !important;
+}
+
+.shadow {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+.rounded-custom {
+    border-radius: 10px;
+}
+
+.fw-bold {
+    font-weight: 600;
+}
+
+/* Animation */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-slide-in {
+    animation: slideIn 0.3s ease-out;
+}
+
+/* Hover Effects */
+.transition-all {
+    transition: all 0.3s ease;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #667eea;
+    border-radius: 4px;
+}
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: #5568d3;
+    }

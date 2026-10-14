@@ -1,0 +1,145 @@
+﻿@using TaskManagerMVC.DataAccess.Models
+@model TaskItem
+
+@{
+    ViewData["Title"] = "Create Task";
+}
+@{
+    var users = ViewBag.Users as List<ApplicationUser> ?? new List<ApplicationUser>();
+    var categories = ViewBag.Categories as List<Category> ?? new List<Category>();
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow">
+                <div class="card-header bg-white border-bottom">
+                    <h4 class="mb-0 fw-bold">
+                        <i class="bi bi-plus-circle"></i> Create New
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    <!-- Form using Form Tag Helper -->
+                    <form asp-controller="Task" asp-action="Create" method="post" class="needs-validation" novalidate>
+                        @Html.AntiForgeryToken()
+
+                        <!-- Validation Summary -->
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger d-none" role="alert" id="validationSummary">
+                            <strong>Please fix the following errors:</strong>
+                            <ul></ul>
+                        </div>
+
+                        <!-- Task Title -->
+                        <div class="mb-3">
+                            <label asp-for="Title" class="form-label fw-bold">Task Title <span class="text-danger">*</span></label>
+                            <input asp-for="Title" class="form-control" placeholder="Enter task title" />
+                            <span asp-validation-for="Title" class="text-danger small d-block mt-1"></span>
+                        </div>
+
+                        <!-- Task Description -->
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label fw-bold">Description</label>
+                            <textarea asp-for="Description" class="form-control" rows="5" placeholder="Enter task description"></textarea>
+                            <span asp-validation-for="Description" class="text-danger small d-block mt-1"></span>
+                        </div>
+
+                        <!-- Row for Category and Priority -->
+                        <div class="row">
+                            <!-- Category -->
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="CategoryId" class="form-label fw-bold">Category <span class="text-danger">*</span></label>
+                                <select asp-for="CategoryId" class="form-select">
+                                    <option value="">-- Select Category --</option>
+                                    @foreach (var category in categories)
+                                    {
+                                        <option value="@category.CategoryId">@category.Name</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="CategoryId" class="text-danger small d-block mt-1"></span>
+                            </div>
+
+                            <!-- Priority -->
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Priority" class="form-label fw-bold">Priority <span class="text-danger">*</span></label>
+                                <select asp-for="Priority" class="form-select">
+                                    <option value="">-- Select Priority --</option>
+                                    <option value="High">High</option>
+                                    <option value="Medium">Medium</option>
+                                    <option value="Low">Low</option>
+                                </select>
+                                <span asp-validation-for="Priority" class="text-danger small d-block mt-1"></span>
+                            </div>
+                        </div>
+
+                        <!-- Row for Assigned To and Due Date -->
+                        <div class="row">
+                            <!-- Assigned To (Team Member) - UPDATED: Using Identity properties -->
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="AssignedToId" class="form-label fw-bold">Assign To <span class="text-danger">*</span></label>
+                                <select asp-for="AssignedToId" class="form-select">
+                                    <option value="">-- Select Team Member --</option>
+                                    @foreach (var user in users)
+                                    {
+                                        <option value="@user.Id">@user.FullName (@user.UserName)</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="AssignedToId" class="text-danger small d-block mt-1"></span>
+                            </div>
+
+                            <!-- Due Date -->
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="DueDate" class="form-label fw-bold">Due Date <span class="text-danger">*</span></label>
+                                <input asp-for="DueDate" type="date" class="form-control" />
+                                <span asp-validation-for="DueDate" class="text-danger small d-block mt-1"></span>
+                            </div>
+                        </div>
+
+                        <!-- Status -->
+                        <div class="mb-3">
+                            <label asp-for="Status" class="form-label fw-bold">Status <span class="text-danger">*</span></label>
+                            <select asp-for="Status" class="form-select">
+                                <option value="">-- Select Status --</option>
+                                <option value="New">New</option>
+                                <option value="In Progress">In Progress</option>
+                                <option value="Completed">Completed</option>
+                                <option value="On Hold">On Hold</option>
+                            </select>
+                            <span asp-validation-for="Status" class="text-danger small d-block mt-1"></span>
+                        </div>
+
+                        <!-- Form Buttons -->
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> Create Task
+                            </button>
+                            <a asp-controller="Task" asp-action="Index" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function() {
+            'use strict';
+            window.addEventListener('load', function() {
+                var forms = document.querySelectorAll('.needs-validation');
+                Array.prototype.slice.call(forms).forEach(function(form) {
+                    form.addEventListener('submit', function(event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        form.classList.add('was-validated');
+                    }, false);
+                });
+            }, false);
+        })();
+    </script>
+}

@@ -1,0 +1,622 @@
+﻿@using TaskManagerMVC.DataAccess.Models
+@model TaskItem
+
+@{
+    ViewData["Title"] = "Task Details";
+}
+
+<div class="container-fluid py-4">
+    <!-- Back Button and Title -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <a href="javascript:history.back()" class="btn btn-outline-secondary btn-sm mb-3">
+                <i class="bi bi-arrow-left"></i> Back
+            </a>
+            <h2 class="mb-0">
+                <i class="bi bi-file-text"></i> Task Details
+            </h2>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Left Column - Task Information -->
+        <div class="col-lg-8">
+            <!-- Main Task Card -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <!-- Task Header -->
+                    <div class="row align-items-center mb-4">
+                        <div class="col">
+                            <h3 class="mb-0">@Model.Title</h3>
+                        </div>
+                        <div class="col-auto">
+                            @if (Model.Status == "In Progress")
+                            {
+                                <span class="badge" style="background-color: #06B6D4;">@Model.Status</span>
+                            }
+                            else if (Model.Status == "Completed")
+                            {
+                                <span class="badge" style="background-color: #10B981;">@Model.Status</span>
+                            }
+                            else if (Model.Status == "Pending")
+                            {
+                                <span class="badge" style="background-color: #F59E0B;">@Model.Status</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">@Model.Status</span>
+                            }
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <!-- Task Details Grid -->
+                    <div class="row g-4 mb-4">
+                        <!-- Description -->
+                        <div class="col-12">
+                            <label class="form-label fw-bold text-muted">Description</label>
+                            <p class="text-dark">@Model.Description</p>
+                        </div>
+
+                        <!-- Priority -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold text-muted">Priority</label>
+                            <div>
+                                @if (Model.Priority == "High")
+                                {
+                                    <span class="badge" style="background-color: #EF4444;">@Model.Priority</span>
+                                }
+                                else if (Model.Priority == "Medium")
+                                {
+                                    <span class="badge" style="background-color: #F59E0B;">@Model.Priority</span>
+                                }
+                                else
+                                {
+                                    <span class="badge" style="background-color: #10B981;">@Model.Priority</span>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Due Date -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold text-muted">Due Date</label>
+                            <p class="text-dark">@Model.DueDate.ToString("MMMM dd, yyyy")</p>
+                        </div>
+
+                        <!-- Category -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold text-muted">Category</label>
+                            <p class="text-dark">@Model.CategoryName</p>
+                        </div>
+
+                        <!-- Assigned To -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold text-muted">Assigned To</label>
+                            <p class="text-dark">@Model.AssignedTo</p>
+                        </div>
+
+                        <!-- Completion Percentage -->
+                        <div class="col-12">
+                            <label class="form-label fw-bold text-muted">Progress</label>
+                            <div class="progress" style="height: 25px;">
+                                <div class="progress-bar bg-success" role="progressbar" 
+                                     style="width: @Model.CompletionPercentage%;" 
+                                     aria-valuenow="@Model.CompletionPercentage" 
+                                     aria-valuemin="0" aria-valuemax="100">
+                                    @Model.CompletionPercentage%
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tags -->
+                        <div class="col-12">
+                            <label class="form-label fw-bold text-muted">Tags</label>
+                            <div>
+                                @if (!string.IsNullOrEmpty(Model.Title))
+                                {
+                                    @foreach (var tag in Model.Title.Split(','))
+                                    {
+                                        <span class="badge bg-light text-dark me-2">@tag.Trim()</span>
+                                    }
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No tags assigned</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Attachments Card -->
+            <!-- Attachments Card -->
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="bi bi-paperclip"></i> Attachments
+                        <span class="badge bg-secondary">@(Model.Attachments?.Count ?? 0)</span>
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <!-- Multiple File Upload Form with Drag & Drop -->
+                    <form asp-action="UploadAttachment" asp-route-taskId="@Model.TaskId"
+                          method="post" enctype="multipart/form-data" class="mb-4" id="uploadForm">
+                        @Html.AntiForgeryToken()
+
+                        <!-- Drag & Drop Zone -->
+                        <div class="upload-area rounded p-4 text-center mb-3" id="dropZone"
+                             style="border: 2px dashed #dee2e6; background-color: #f8f9fa; cursor: pointer;">
+                            <i class="bi bi-cloud-upload text-primary" style="font-size: 2.5rem;"></i>
+                            <h6 class="mt-2 mb-1">Drag & Drop files here</h6>
+                            <p class="text-muted small mb-2">or click to browse</p>
+
+                            <!-- MULTIPLE File Input - Changed name from "file" to "files" -->
+                            <input type="file" name="files" id="fileInput"
+                                   multiple
+                                   accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.png,.jpg,.jpeg,.gif,.zip"
+                                   style="display: none;" />
+
+                            <button type="button" class="btn btn-outline-primary btn-sm"
+                                    onclick="document.getElementById('fileInput').click();">
+                                <i class="bi bi-folder2-open"></i> Browse Files
+                            </button>
+
+                            <div class="mt-2">
+                                <small class="text-muted">
+                                    <i class="bi bi-info-circle"></i>
+                                    Max 5MB per file | Allowed: PDF, DOC, DOCX, XLS, XLSX, TXT, PNG, JPG, GIF, ZIP
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- Selected Files Preview -->
+                        <div id="selectedFiles" style="display: none;" class="mb-3">
+                            <h6 class="text-muted">
+                                <i class="bi bi-files"></i> Selected Files (<span id="fileCount">0</span>)
+                            </h6>
+                            <ul id="fileList" class="list-group list-group-flush"></ul>
+                        </div>
+
+                        <!-- Upload Button -->
+                        <button type="submit" id="uploadBtn" class="btn btn-primary w-100" disabled>
+                            <i class="bi bi-upload"></i> Upload Selected Files
+                        </button>
+                    </form>
+
+                    <hr>
+
+                    <!-- Attachments List -->
+                    @if (Model.Attachments != null && Model.Attachments.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>File Name</th>
+                                        <th>Uploaded Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var attachment in Model.Attachments.OrderByDescending(a => a.UploadedDate))
+                                    {
+                                        // Extract original filename (remove GUID prefix)
+                                        string displayName = attachment.FileName.Contains("_")
+                                        ? attachment.FileName.Substring(attachment.FileName.IndexOf("_") + 1)
+                                        : attachment.FileName;
+
+                                        // Get file extension for icon
+                                        string ext = System.IO.Path.GetExtension(attachment.FileName).ToLower();
+
+                                        // Determine icon class based on extension
+                                        string iconClass = "bi-file-earmark text-secondary";
+                                        if (ext == ".pdf") { iconClass = "bi-file-pdf text-danger"; }
+                                        else if (ext == ".doc" || ext == ".docx") { iconClass = "bi-file-word text-primary"; }
+                                        else if (ext == ".xls" || ext == ".xlsx") { iconClass = "bi-file-excel text-success"; }
+                                        else if (ext == ".txt") { iconClass = "bi-file-text text-secondary"; }
+                                        else if (ext == ".png" || ext == ".jpg" || ext == ".jpeg" || ext == ".gif") { iconClass = "bi-file-image text-info"; }
+                                        else if (ext == ".zip") { iconClass = "bi-file-zip text-warning"; }
+
+                                        <tr>
+                                            <td>
+                                                <i class="bi @iconClass me-2"></i>
+                                                @displayName
+                                            </td>
+                                            <td>
+                                                <small>@attachment.UploadedDate.ToString("MMM dd, yyyy HH:mm")</small>
+                                            </td>
+                                            <td>
+                                                <!-- Download Button - Available to everyone -->
+                                                <a asp-action="DownloadAttachment"
+                                                   asp-route-taskId="@Model.TaskId"
+                                                   asp-route-attachmentId="@attachment.AttachmentId"
+                                                   class="btn btn-sm btn-outline-primary" title="Download">
+                                                    <i class="bi bi-download"></i>
+                                                </a>
+
+                                                <!-- Delete Button - MANAGERS ONLY -->
+                                                @if (ViewData["IsManager"] as bool? == true)
+                                                {
+                                                    <form asp-action="DeleteAttachment"
+                                                          asp-route-taskId="@Model.TaskId"
+                                                          asp-route-attachmentId="@attachment.AttachmentId"
+                                                          method="post" style="display:inline;"
+                                                          onsubmit="return confirm('Are you sure you want to delete this attachment?');">
+                                                        @Html.AntiForgeryToken()
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                    
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="bi bi-folder2-open text-muted" style="font-size: 3rem;"></i>
+                            <p class="text-muted mt-2">No attachments yet. Upload your first file above.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - Actions Sidebar -->
+        <div class="col-lg-4">
+            <!-- Quick Actions Card -->
+            <div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%); color: white;">
+                <div class="card-body p-4">
+                    <h5 class="card-title mb-3">
+                        <i class="bi bi-lightning-charge"></i> Quick Actions
+                    </h5>
+                    <div class="d-grid gap-2">
+                        <a asp-action="Edit" asp-route-id="@Model.TaskId" class="btn btn-light btn-sm">
+                            <i class="bi bi-pencil"></i> Edit Task
+                        </a>
+                        <button class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#markCompleteModal">
+                            <i class="bi bi-check-circle"></i> Mark Complete
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-light btn-sm">
+                            <i class="bi bi-list"></i> View All Tasks
+                        </a>
+                        <button class="btn btn-outline-light btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                            <i class="bi bi-trash"></i> Delete Task
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status Information Card -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h5 class="mb-0">
+                        <i class="bi bi-hourglass-split"></i> Status Info
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-muted d-block">Current Status</label>
+                        @if (Model.Status == "In Progress")
+                        {
+                            <div class="alert alert-info mb-0" role="alert">
+                                <i class="bi bi-play-circle"></i> This task is currently in progress
+                            </div>
+                        }
+                        else if (Model.Status == "Completed")
+                        {
+                            <div class="alert alert-success mb-0" role="alert">
+                                <i class="bi bi-check-circle"></i> This task has been completed
+                            </div>
+                        }
+                        else if (Model.Status == "Pending")
+                        {
+                            <div class="alert alert-warning mb-0" role="alert">
+                                <i class="bi bi-clock"></i> This task is pending
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-secondary mb-0" role="alert">
+                                Status: @Model.Status
+                            </div>
+                        }
+                    </div>
+
+                    @if (Model.DueDate != DateTime.MinValue)
+                    {
+                        var daysLeft = (Model.DueDate - DateTime.Now).Days;
+                        <div class="mt-3">
+                            <label class="form-label fw-bold text-muted d-block">Time Remaining</label>
+                            @if (daysLeft < 0)
+                            {
+                                <p class="text-danger"><i class="bi bi-exclamation-triangle"></i> <strong>@Math.Abs(daysLeft) days overdue</strong></p>
+                            }
+                            else if (daysLeft == 0)
+                            {
+                                <p class="text-warning"><i class="bi bi-exclamation-circle"></i> <strong>Due today!</strong></p>
+                            }
+                            else
+                            {
+                                <p class="text-success"><i class="bi bi-calendar-check"></i> <strong>@daysLeft days remaining</strong></p>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ==================== COMMENTS SECTION ==================== -->
+    <div class="card border-0 shadow-sm mt-4">
+        <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="bi bi-chat-dots"></i> Comments
+                <span class="badge bg-secondary">@(Model.Comments?.Count ?? 0)</span>
+            </h5>
+        </div>
+        <div class="card-body p-4">
+            <!-- Add Comment Form -->
+            <form asp-controller="Task" asp-action="AddComment" method="post" class="mb-4">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="taskId" value="@Model.TaskId" />
+                <div class="row align-items-end">
+                    <div class="col-md-9">
+                        <label class="form-label fw-bold">Add a Comment</label>
+                        <textarea name="content" class="form-control" rows="2"
+                                  placeholder="Write your comment here..."
+                                  required maxlength="1000"></textarea>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-send"></i> Post
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <hr>
+
+            <!-- Comments List -->
+            @if (Model.Comments != null && Model.Comments.Any())
+            {
+                <div class="comments-list">
+                    @foreach (var comment in Model.Comments.OrderByDescending(c => c.CreatedDate))
+                    {
+                        <div class="comment-item mb-3 pb-3 border-bottom">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-circle bg-primary text-white me-2">
+                                        @(comment.User?.Username?.Substring(0, 1).ToUpper() ?? "U")
+                                    </div>
+                                    <div>
+                                        <strong class="text-primary">
+                                            @(comment.User?.Username ?? "Unknown User")
+                                        </strong>
+                                        <br />
+                                        <small class="text-muted">
+                                            <i class="bi bi-clock"></i>
+                                            @comment.CreatedDate.ToString("MMM dd, yyyy 'at' hh:mm tt")
+                                        </small>
+                                    </div>
+                                </div>
+
+                                @* Delete button - Managers OR comment owner *@
+                                @{
+                                    var currentUserId = ViewData["CurrentUserId"] as int?;
+                                    var isManager = ViewData["IsManager"] as bool? ?? false;
+                                    var canDelete = isManager || comment.UserId == currentUserId;
+                                }
+                                @if (canDelete)
+                                {
+                                    <form asp-controller="Task" asp-action="DeleteComment"
+                                          asp-route-commentId="@comment.CommentId"
+                                          asp-route-taskId="@Model.TaskId"
+                                          method="post" style="display:inline;"
+                                          onsubmit="return confirm('Delete this comment?');">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                }
+                            </div>
+                            <div class="comment-content mt-2 ms-5">
+                                <p class="mb-0">@comment.Content</p>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-4">
+                    <i class="bi bi-chat text-muted" style="font-size: 3rem;"></i>
+                    <p class="text-muted mt-2">No comments yet. Be the first to comment!</p>
+                </div>
+            }
+        </div>
+    </div>
+
+    <style>
+        .avatar-circle {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .comment-item:last-child {
+            border-bottom: none !important;
+            margin-bottom: 0 !important;
+            padding-bottom: 0 !important;
+        }
+
+        .comment-content {
+            background-color: #f8f9fa;
+            padding: 10px 15px;
+            border-radius: 8px;
+            border-left: 3px solid #6366F1;
+        }
+    </style>
+</div>
+
+<!-- Mark Complete Modal -->
+<div class="modal fade" id="markCompleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header border-bottom-0">
+                <h5 class="modal-title">Mark Task Complete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to mark <strong>@Model.Title</strong> as complete?</p>
+            </div>
+            <div class="modal-footer border-top-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <!-- FIX: Change name from "newStatus" to "status" -->
+                <form asp-action="UpdateStatus" asp-route-id="@Model.TaskId" method="post" style="display:inline;">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="status" value="Completed" />
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-check-circle"></i> Mark Complete
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header border-bottom-0">
+                <h5 class="modal-title text-danger">Delete Task</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete <strong>@Model.Title</strong>? This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer border-top-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <!-- FIX: Use POST form instead of anchor tag -->
+                <form asp-action="Delete" asp-route-id="@Model.TaskId" method="post" style="display:inline;">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> Delete Permanently
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Bootstrap Modal Scripts (keep existing)
+        document.querySelectorAll('[data-bs-toggle="modal"]').forEach(function(button) {
+            button.addEventListener('click', function() {
+                const modalId = this.getAttribute('data-bs-target');
+                const modal = new bootstrap.Modal(document.querySelector(modalId));
+                modal.show();
+            });
+        });
+
+        // ==================== FILE UPLOAD SCRIPTS ====================
+        document.addEventListener('DOMContentLoaded', function () {
+            const dropZone = document.getElementById('dropZone');
+            const fileInput = document.getElementById('fileInput');
+            const selectedFiles = document.getElementById('selectedFiles');
+            const fileList = document.getElementById('fileList');
+            const uploadBtn = document.getElementById('uploadBtn');
+            const fileCount = document.getElementById('fileCount');
+
+            if (!dropZone || !fileInput) return;
+
+            // File input change handler
+            fileInput.addEventListener('change', function () {
+                updateFileList(this.files);
+            });
+
+            // Drag and drop handlers
+            dropZone.addEventListener('dragover', function (e) {
+                e.preventDefault();
+                dropZone.style.borderColor = '#0d6efd';
+                dropZone.style.backgroundColor = '#e7f1ff';
+            });
+
+            dropZone.addEventListener('dragleave', function (e) {
+                e.preventDefault();
+                dropZone.style.borderColor = '#dee2e6';
+                dropZone.style.backgroundColor = '#f8f9fa';
+            });
+
+            dropZone.addEventListener('drop', function (e) {
+                e.preventDefault();
+                dropZone.style.borderColor = '#dee2e6';
+                dropZone.style.backgroundColor = '#f8f9fa';
+
+                const dt = new DataTransfer();
+                for (let file of e.dataTransfer.files) {
+                    dt.items.add(file);
+                }
+                fileInput.files = dt.files;
+                updateFileList(fileInput.files);
+            });
+
+            // Click on drop zone to open file browser
+            dropZone.addEventListener('click', function (e) {
+                if (e.target.tagName !== 'BUTTON') {
+                    fileInput.click();
+                }
+            });
+
+            function updateFileList(files) {
+                fileList.innerHTML = '';
+
+                if (files.length > 0) {
+                    selectedFiles.style.display = 'block';
+                    uploadBtn.disabled = false;
+                    fileCount.textContent = files.length;
+
+                    for (let file of files) {
+                        const li = document.createElement('li');
+                        li.className = 'list-group-item d-flex justify-content-between align-items-center py-2';
+
+                        const sizeKB = (file.size / 1024).toFixed(1);
+                        const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+                        const sizeDisplay = file.size > 1024 * 1024 ? `${sizeMB} MB` : `${sizeKB} KB`;
+
+                        const isTooLarge = file.size > 5 * 1024 * 1024;
+
+                        li.innerHTML = `
+                            <span>
+                                <i class="bi bi-file-earmark me-2"></i>
+                                ${file.name}
+                            </span>
+                            <span class="badge ${isTooLarge ? 'bg-danger' : 'bg-secondary'}">
+                                ${isTooLarge ? '<i class="bi bi-exclamation-triangle me-1"></i>' : ''}${sizeDisplay}
+                            </span>
+                        `;
+                        fileList.appendChild(li);
+                    }
+                } else {
+                    selectedFiles.style.display = 'none';
+                    uploadBtn.disabled = true;
+                }
+            }
+        });
+    </script>
+}

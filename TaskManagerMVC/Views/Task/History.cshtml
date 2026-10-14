@@ -1,0 +1,92 @@
+﻿@using TaskManagerMVC.DataAccess.ViewModels
+@model TaskHistoryViewModel
+
+@{
+    ViewData["Title"] = "Task History";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="fw-bold">
+                <i class="bi bi-clock-history"></i> Task History
+            </h2>
+        </div>
+    </div>
+
+    @if (Model != null && Model.Task != null)
+    {
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-bottom">
+                        <h5 class="mb-0 fw-bold">@Model.Task.Title</h5>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Status:</strong> <span class="badge bg-info">@Model.Task.Status</span></p>
+                        <p><strong>Priority:</strong> <span class="badge bg-danger">@Model.Task.Priority</span></p>
+                        <p><strong>Assigned To:</strong> @Model.Task.AssignedTo</p>
+                        <p><strong>Due Date:</strong> @Model.Task.DueDate.ToString("MMM dd, yyyy")</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-bottom">
+                        <h6 class="mb-0 fw-bold">Activity Summary</h6>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Total Activities:</strong> @Model.TotalActivities</p>
+                        <p><strong>Comments:</strong> @Model.TotalComments</p>
+                        <p><strong>Attachments:</strong> @Model.TotalAttachments</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-bottom">
+                        <h6 class="mb-0 fw-bold">Activity Timeline</h6>
+                    </div>
+                    <div class="card-body">
+                        @if (Model.ActivityTimeline.Count == 0)
+                        {
+                            <p class="text-muted">No activity recorded yet.</p>
+                        }
+                        else
+                        {
+                            <ul class="list-group list-group-flush">
+                                @foreach (var activity in Model.ActivityTimeline)
+                                {
+                                    <li class="list-group-item">
+                                        <div class="d-flex justify-content-between">
+                                            <strong>@activity.HistoryId</strong>
+                                            <small class="text-muted">@activity.ChangedDate.ToString("MMM dd, yyyy HH:mm")</small>
+                                        </div>
+                                        <p class="mb-1">@activity.FieldName</p>
+                                        <small class="text-muted">by @activity.FieldName</small>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <a asp-controller="Task" asp-action="Index" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Tasks
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-warning">
+            <strong>Task not found!</strong>
+        </div>
+    }
+</div>

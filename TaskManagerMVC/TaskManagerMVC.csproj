@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<UserSecretsId>da5ef650-616d-4037-be44-b2d78a3e45b7</UserSecretsId>
+	</PropertyGroup>
+
+	<!-- ==================== PROJECT REFERENCES ==================== -->
+	<!-- Reference to Data Access Layer (Class Library) -->
+
+	<!-- ==================== EF CORE PACKAGES FOR WEB PROJECT ==================== -->
+	<!-- These are needed for the web project to use EF Core providers -->
+	<ItemGroup>
+		<!-- SQL Server Provider -->
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="8.0.11" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.22">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.22" />
+
+		<!-- MySQL Provider -->
+		<PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.3" />
+
+		<!-- In-Memory Provider -->
+		<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.22" />
+	</ItemGroup>
+	<ItemGroup>
+	  <!--<ProjectReference Include="..\..\..\Project2D1\TaskManagerSolution\TaskManagerMVC.DataAccess\TaskManagerMVC.DataAccess.csproj" />-->
+		<ProjectReference Include="..\TaskManagerMVC.DataAccess\TaskManagerMVC.DataAccess.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="wwwroot\uploads\tasks\" />
+	</ItemGroup>
+
+</Project>
